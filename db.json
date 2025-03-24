@@ -1,0 +1,33 @@
+{
+  "menu": [
+    {
+      "id": 1,
+      "name": "Gỏi cuốn",
+      "image": "https://product.hstatic.net/200000902933/product/goi_cuon_ac373a4c1fb9457b96a46cd2629d71a8.png",
+      "price": 3.50,
+      "category": "Khai vị"
+    },
+    {
+      "id": 2,
+      "name": "Phở bò",
+      "image": "https://vnaroma.com/wp-content/uploads/2020/11/nau-pho-bo-voi-gia-vi-bot-huong-bo-01.jpg",
+      "price": 5.00,
+      "category": "Món chính"
+    },
+    {
+      "id": 3,
+      "name": "Trà sữa",
+      "image": "https://img.lovepik.com/png/20231106/milk-tea-transparent-glass-Milk-tea-cup-pearl-drinking-glass_506346_wh1200.png",
+      "price": 2.50,
+      "category": "Đồ uống"
+    },
+    {
+      "id": 4,
+      "name": "Bánh flan",
+      "image": "https://product.hstatic.net/200000388411/product/banhflan-ko-1024_63e7256410d64bbb908a6bb992c2ccf7_master.png",
+      "price": 2.00,
+      "category": "Món tráng miệng"
+    }
+  ],
+  "users": []
+}
