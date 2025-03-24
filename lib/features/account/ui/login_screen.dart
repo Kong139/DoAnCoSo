@@ -12,6 +12,20 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  String? _errorMessage;
+
+  void _login() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        await Provider.of<AuthProvider>(context, listen: false)
+            .login(_phoneController.text, _passwordController.text);
+      } catch (e) {
+        setState(() {
+          _errorMessage = e.toString();
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,14 +61,17 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    await Provider.of<AuthProvider>(context, listen: false)
-                        .login(_phoneController.text, _passwordController.text);
-                  }
-                },
+                onPressed: _login,
                 child: Text('Đăng nhập'),
               ),
+              if (_errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: Text(
+                    _errorMessage!,
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
               TextButton(
                 onPressed: () {
                   Navigator.push(

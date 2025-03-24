@@ -4,14 +4,14 @@ import 'features/menu/data/menu_repository.dart';
 import 'features/menu/logic/menu_provider.dart';
 import 'features/order/logic/order_provider.dart';
 import 'features/account/logic/auth_provider.dart';
-import 'features/main_screen.dart';
+import 'main_screen.dart';
 import 'features/account/ui/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final authProvider = AuthProvider();
   await authProvider.loadToken(); // Load token từ SharedPreferences
-
+  
   runApp(
     MultiProvider(
       providers: [
@@ -23,6 +23,7 @@ void main() async {
     ),
   );
 }
+
 
 class MyApp extends StatelessWidget {
   @override

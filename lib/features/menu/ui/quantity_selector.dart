@@ -68,16 +68,13 @@ class _QuantitySelectorState extends State<QuantitySelector> {
         ),
         ElevatedButton(
           onPressed: () {
-            Provider.of<OrderProvider>(context, listen: false).addToOrder(widget.food, _quantity);
-
-            // Hiển thị thông báo khi đặt món thành công
+            Provider.of<OrderProvider>(context, listen: false).addToCart(widget.food, _quantity);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('${widget.food.name} x$_quantity đã được thêm vào giỏ hàng')),
             );
-
             Navigator.of(context).pop();
           },
-          child: Text('Đặt món'),
+          child: Text('Thêm vào giỏ'),
         ),
       ],
     );

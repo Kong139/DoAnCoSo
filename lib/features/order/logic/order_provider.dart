@@ -9,36 +9,43 @@ class OrderItem {
 }
 
 class OrderProvider with ChangeNotifier {
-  final Map<int, OrderItem> _order = {}; // Dùng food.id làm key
+  final List<OrderItem> _cartItems = [];
+  final List<OrderItem> _orderedItems = [];
 
-  Map<int, OrderItem> get order => _order;
+  List<OrderItem> get cartItems => _cartItems;
+  List<OrderItem> get orderedItems => _orderedItems;
 
-  void addToOrder(Food food, [int quantity = 1]) {
-    if (_order.containsKey(food.id)) {
-      _order[food.id]!.quantity += quantity;
+  double get totalCartPrice =>
+      _cartItems.fold(0, (total, item) => total + (item.food.price * item.quantity));
+
+  double get totalOrderPrice =>
+      _orderedItems.fold(0, (total, item) => total + (item.food.price * item.quantity));
+
+  void addToCart(Food food, int quantity) {
+    final index = _cartItems.indexWhere((item) => item.food.id == food.id);
+    if (index >= 0) {
+      _cartItems[index].quantity += quantity;
     } else {
-      _order[food.id] = OrderItem(food: food, quantity: quantity);
+      _cartItems.add(OrderItem(food: food, quantity: quantity));
     }
     notifyListeners();
   }
 
-  void removeFromOrder(Food food) {
-    if (_order.containsKey(food.id)) {
-      if (_order[food.id]!.quantity > 1) {
-        _order[food.id]!.quantity--;
+  void updateQuantity(int foodId, int newQuantity) {
+    final index = _cartItems.indexWhere((item) => item.food.id == foodId);
+    if (index >= 0) {
+      if (newQuantity > 0) {
+        _cartItems[index].quantity = newQuantity;
       } else {
-        _order.remove(food.id);
+        _cartItems.removeAt(index);
       }
       notifyListeners();
     }
   }
 
-  void clearOrder() {
-    _order.clear();
+  void placeOrder() {
+    _orderedItems.addAll(_cartItems);
+    _cartItems.clear();
     notifyListeners();
-  }
-
-  double getTotalPrice() {
-    return _order.values.fold(0, (total, item) => total + (item.food.price * item.quantity));
   }
 }

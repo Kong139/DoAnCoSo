@@ -6,6 +6,10 @@ import 'dart:convert';
 class AuthProvider with ChangeNotifier {
   String? _token;
   bool get isAuthenticated => _token != null;
+  String? _phoneNumber;
+  String? get phoneNumber => _phoneNumber;
+  String? _username;
+  String? get username => _username;
 
   Future<void> register(String phone, String password) async {
     try {
@@ -27,7 +31,6 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> login(String phone, String password) async {
-    try {
       final response = await http.post(
         Uri.parse('http://restaurant-api-env.eba-ab4kq7u2.us-east-1.elasticbeanstalk.com/api/auth/login'),
         headers: {'Content-Type': 'application/json'},
@@ -37,15 +40,16 @@ class AuthProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         _token = data['token'];
+        _phoneNumber = data['phone'];
+        _username = data['name'];
+
         await _saveToken(_token!);
         notifyListeners();
+        print("Đăng nhập thành công, token: $_token, name: $_username, phone: $_phoneNumber");
       } else {
         final data = jsonDecode(response.body);
         throw Exception(data['message'] ?? 'Đăng nhập thất bại');
       }
-    } catch (e) {
-      throw Exception('Lỗi kết nối: $e');
-    }
   }
 
   Future<void> logout() async {

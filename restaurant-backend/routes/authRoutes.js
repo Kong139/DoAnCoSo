@@ -41,11 +41,18 @@ router.post("/login", async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: "Sai mật khẩu!" });
 
     // Tạo JWT token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign(
+      { id: user._id, name: user.name, phone: user.phone },
+      process.env.JWT_SECRET || "default_secret",  // Tránh lỗi nếu env bị thiếu
+      { expiresIn: "1h" }
+    );
 
-    res.json({ message: "Đăng nhập thành công!", token });
+    console.log("Đăng nhập thành công:", { token, name: user.name, phone: user.phone });  // Log ra terminal
+
+    return res.json({ message: "Đăng nhập thành công!", token, name: user.name, phone: user.phone });
   } catch (error) {
-    res.status(500).json({ message: "Lỗi server" });
+    console.error("Lỗi đăng nhập:", error);  // In lỗi server nếu có
+    return res.status(500).json({ message: "Lỗi server" });
   }
 });
 
