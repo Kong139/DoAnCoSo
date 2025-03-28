@@ -14,7 +14,7 @@ class AuthProvider with ChangeNotifier {
   Future<void> register(String phone, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('http://restaurant-api-env.eba-ab4kq7u2.us-east-1.elasticbeanstalk.com/api/auth/register'),
+        Uri.parse('http://restaurant-api.eba-wzh62pas.us-east-1.elasticbeanstalk.com/api/auth/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'phone': phone, 'password': password}),
       );
@@ -32,7 +32,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> login(String phone, String password) async {
       final response = await http.post(
-        Uri.parse('http://restaurant-api-env.eba-ab4kq7u2.us-east-1.elasticbeanstalk.com/api/auth/login'),
+        Uri.parse('http://restaurant-api.eba-wzh62pas.us-east-1.elasticbeanstalk.com/api/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'phone': phone, 'password': password}),
       );

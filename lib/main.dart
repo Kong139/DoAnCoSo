@@ -11,7 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final authProvider = AuthProvider();
   await authProvider.loadToken(); // Load token từ SharedPreferences
-  
+
   runApp(
     MultiProvider(
       providers: [
