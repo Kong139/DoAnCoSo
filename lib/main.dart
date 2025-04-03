@@ -6,6 +6,7 @@ import 'features/order/logic/order_provider.dart';
 import 'features/account/logic/auth_provider.dart';
 import 'main_screen.dart';
 import 'features/account/ui/login_screen.dart';
+import '../features/account/data/auth_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

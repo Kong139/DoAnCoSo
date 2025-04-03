@@ -1,76 +1,70 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../data/auth_repository.dart';
 
 class AuthProvider with ChangeNotifier {
+  final AuthRepository _authRepository = AuthRepository();
+
   String? _token;
-  bool get isAuthenticated => _token != null;
   String? _phoneNumber;
-  String? get phoneNumber => _phoneNumber;
   String? _username;
+
+  bool get isAuthenticated => _token != null;
+  String? get phoneNumber => _phoneNumber;
   String? get username => _username;
 
   Future<void> register(String phone, String password) async {
     try {
-      final response = await http.post(
-        Uri.parse('http://restaurant-api.eba-wzh62pas.us-east-1.elasticbeanstalk.com/api/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'phone': phone, 'password': password}),
-      );
-
-      if (response.statusCode == 201) {
-        await login(phone, password); // Đăng ký xong tự động đăng nhập
-      } else {
-        final data = jsonDecode(response.body);
-        throw Exception(data['message'] ?? 'Đăng ký thất bại');
-      }
+      await _authRepository.register(phone, password);
+      await login(phone, password);
     } catch (e) {
-      throw Exception('Lỗi kết nối: $e');
+      throw Exception(e.toString());
     }
   }
 
   Future<void> login(String phone, String password) async {
-      final response = await http.post(
-        Uri.parse('http://restaurant-api.eba-wzh62pas.us-east-1.elasticbeanstalk.com/api/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'phone': phone, 'password': password}),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        _token = data['token'];
-        _phoneNumber = data['phone'];
-        _username = data['name'];
-
-        await _saveToken(_token!);
-        notifyListeners();
-        print("Đăng nhập thành công, token: $_token, name: $_username, phone: $_phoneNumber");
-      } else {
-        final data = jsonDecode(response.body);
-        throw Exception(data['message'] ?? 'Đăng nhập thất bại');
-      }
+    try {
+      final data = await _authRepository.login(phone, password);
+      _token = data['token'];
+      _phoneNumber = data['phone'];
+      _username = data['name'];
+      notifyListeners();
+    } catch (e) {
+      throw Exception(e.toString());
+    }
   }
 
   Future<void> logout() async {
     _token = null;
-    await _removeToken();
+    _phoneNumber = null;
+    _username = null;
+    await _authRepository.logout();
     notifyListeners();
   }
 
-  Future<void> _saveToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('token', token);
-  }
-
-  Future<void> _removeToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
-  }
-
+  // Load token và kiểm tra tính hợp lệ của nó
   Future<void> loadToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    _token = prefs.getString('token');
+    _token = await _authRepository.loadToken();
+    if (_token != null) {
+      bool valid = await isTokenValid();
+      if (!valid) {
+        _token = null;
+      }
+    }
     notifyListeners();
+  }
+
+  // Kiểm tra token có hợp lệ không
+  Future<bool> isTokenValid() async {
+    return await _authRepository.isTokenValid();
+  }
+
+  Future<Map<String, dynamic>?> fetchUserInfo() async {
+    final userInfo = await _authRepository.getUserInfo();
+    if (userInfo != null) {
+      _username = userInfo['name'] ?? _username;
+      _phoneNumber = userInfo['phone'] ?? _phoneNumber;
+      notifyListeners();
+    }
+    return userInfo;
   }
 }

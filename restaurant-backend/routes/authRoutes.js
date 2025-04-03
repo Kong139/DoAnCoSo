@@ -56,4 +56,34 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// Middleware xác thực token
+const authenticateToken = (req, res, next) => {
+  const token = req.header("Authorization")?.split(" ")[1]; // Lấy token từ header Authorization
+
+  if (!token) {
+    return res.status(401).json({ message: "Không có token, truy cập bị từ chối!" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "default_secret");
+    req.user = decoded; // Lưu thông tin user vào req để dùng ở các route khác
+    next();
+  } catch (error) {
+    return res.status(403).json({ message: "Token không hợp lệ hoặc đã hết hạn!" });
+  }
+};
+
+// Route kiểm tra token có hợp lệ không
+router.get("/validate", authenticateToken, (req, res) => {
+  res.json({ message: "Token hợp lệ!", user: req.user });
+});
+
+// Route /me để lấy thông tin người dùng từ token
+router.get("/me", authenticateToken, (req, res) => {
+  res.json({
+    name: req.user.name,
+    phone: req.user.phone,
+  });
+});
+
 module.exports = router;
