@@ -52,7 +52,7 @@ class CartScreen extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 70.0),
             child: Column(
               children: [
                 Text(
@@ -64,7 +64,10 @@ class CartScreen extends StatelessWidget {
                   onPressed: () {
                     orderProvider.placeOrder();
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Đặt hàng thành công!")),
+                      SnackBar(
+                        content: Text("Đặt hàng thành công!"),
+                        behavior: SnackBarBehavior.floating,
+                      ),
                     );
                   },
                   child: Text("Đặt hàng"),
