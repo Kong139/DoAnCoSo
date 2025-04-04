@@ -36,7 +36,7 @@ router.delete("/:id", async (req, res) => {
     await MenuItem.findOneAndDelete({ id: req.params.id });
     res.json({ message: "Xóa món ăn thành công!" });
   } catch (error) {
-      console.error("🔥 Lỗi API /api/menu:", error);
+      console.error("Lỗi API /api/menu:", error);
       res.status(500).json({ message: "Lỗi server", error: error.message });
   }
 });
