@@ -27,8 +27,11 @@ class AuthProvider with ChangeNotifier {
       _token = data['token'];
       _phoneNumber = data['phone'];
       _username = data['name'];
+      await fetchUserInfo(); // Load lại thông tin user sau khi đăng nhập
       notifyListeners();
+      print('Login successful: token=$_token, phone=$_phoneNumber, name=$_username');
     } catch (e) {
+      print('Login failed: $e');
       throw Exception(e.toString());
     }
   }
@@ -39,9 +42,9 @@ class AuthProvider with ChangeNotifier {
     _username = null;
     await _authRepository.logout();
     notifyListeners();
+    print('Logged out');
   }
 
-  // Load token và kiểm tra tính hợp lệ của nó
   Future<void> loadToken() async {
     _token = await _authRepository.loadToken();
     if (_token != null) {
@@ -51,6 +54,7 @@ class AuthProvider with ChangeNotifier {
       }
     }
     notifyListeners();
+    print('Token loaded: $_token');
   }
 
   // Kiểm tra token có hợp lệ không
@@ -63,7 +67,6 @@ class AuthProvider with ChangeNotifier {
     if (userInfo != null) {
       _username = userInfo['name'] ?? _username;
       _phoneNumber = userInfo['phone'] ?? _phoneNumber;
-      notifyListeners();
     }
     return userInfo;
   }

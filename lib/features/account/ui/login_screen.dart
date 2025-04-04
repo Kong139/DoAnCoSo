@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../main_screen.dart';
 import '../logic/auth_provider.dart';
 import 'register_screen.dart';
 
@@ -19,6 +20,10 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         await Provider.of<AuthProvider>(context, listen: false)
             .login(_phoneController.text, _passwordController.text);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen()),
+        );
       } catch (e) {
         setState(() {
           _errorMessage = e.toString();

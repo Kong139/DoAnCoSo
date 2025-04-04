@@ -46,29 +46,30 @@ class AuthRepository {
     await removeToken();
   }
 
-  // Lưu token vào SharedPreferences
   Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
+    print('Token saved: $token');
   }
 
-  // Xóa token khỏi SharedPreferences
   Future<void> removeToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token');
+    print('Token removed');
   }
 
-  // Tải token từ SharedPreferences
   Future<String?> loadToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    String? token = prefs.getString('token');
+    print('Token loaded from SharedPreferences: $token');
+    return token;
   }
 
-  // Kiểm tra token có hợp lệ không thông qua API validate
   Future<bool> isTokenValid() async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     if (token == null) {
+      print('No token found');
       return false;
     }
 
@@ -82,13 +83,16 @@ class AuthRepository {
       );
 
       if (response.statusCode == 200) {
+        print('Token is valid');
         return true;
       } else {
         // Nếu token không hợp lệ, xóa nó khỏi SharedPreferences
         await prefs.remove('token');
+        print('Token invalid, removed from SharedPreferences');
         return false;
       }
     } catch (e) {
+      print('Error validating token: $e');
       return false;
     }
   }
