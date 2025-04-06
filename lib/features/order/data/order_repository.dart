@@ -1,20 +1,19 @@
+// order_repository.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'order_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../account/logic/auth_provider.dart'; // Import AuthProvider
 
 class OrderRepository {
   final String baseUrl =
       'http://restaurant-api.eba-wzh62pas.us-east-1.elasticbeanstalk.com/api';
+  final AuthProvider authProvider; // Thêm AuthProvider
 
-  Future<String?> _getAuthToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
-  }
+  OrderRepository(this.authProvider); // Constructor nhận AuthProvider
 
   Future<void> placeOrder(List<OrderItem> items) async {
     final url = Uri.parse('$baseUrl/orders');
-    final token = await _getAuthToken();
+    final token = authProvider.authToken; // Truy cập token từ AuthProvider
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
@@ -30,14 +29,16 @@ class OrderRepository {
 
   Future<List<Order>> fetchOrderHistory() async {
     final url = Uri.parse('$baseUrl/orders');
-    final token = await _getAuthToken();
+    final token = authProvider.authToken;
     final headers = {'Authorization': 'Bearer $token'};
 
     final response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
-      return data.map((json) => Order.fromJson(json)).toList();
+      final List<Future<Order>> orderFutures = data.map((json) => Order.fromJson(json)).toList();
+      final List<Order> orders = await Future.wait(orderFutures);
+      return orders;
     } else {
       throw Exception('Failed to fetch order history: ${response.statusCode}');
     }

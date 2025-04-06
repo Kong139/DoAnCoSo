@@ -9,6 +9,7 @@ class AuthProvider with ChangeNotifier {
   String? _username;
 
   bool get isAuthenticated => _token != null;
+  String? get authToken => _token;
   String? get phoneNumber => _phoneNumber;
   String? get username => _username;
 
@@ -54,7 +55,6 @@ class AuthProvider with ChangeNotifier {
       }
     }
     notifyListeners();
-    print('Token loaded: $_token');
   }
 
   // Kiểm tra token có hợp lệ không

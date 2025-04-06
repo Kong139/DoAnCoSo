@@ -61,7 +61,6 @@ class AuthRepository {
   Future<String?> loadToken() async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    print('Token loaded from SharedPreferences: $token');
     return token;
   }
 

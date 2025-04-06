@@ -1,4 +1,3 @@
-// order_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../order/logic/order_provider.dart';
@@ -81,8 +80,52 @@ class _OrderScreenState extends State<OrderScreen> {
           subtitle: Text(
               "Ngày: ${orderDate.day}/${orderDate.month}/${orderDate.year} ${orderDate.hour}:${orderDate.minute}"),
           trailing: Text("Số món: ${order.listItem.length}"),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OrderDetailScreen(order: order),
+              ),
+            );
+          },
         );
       },
+    );
+  }
+}
+
+class OrderDetailScreen extends StatelessWidget {
+  final Order order;
+
+  OrderDetailScreen({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Chi tiết đơn hàng #${order.id.substring(0, 8)}"),
+      ),
+      body: order.listItem.isEmpty // Check if listItem is empty
+          ? Center(child: Text("Lỗi: Không thể tải thông tin món ăn")) // Display error message
+          : ListView.builder(
+        itemCount: order.listItem.length,
+        itemBuilder: (context, index) {
+          final item = order.listItem[index];
+          return ListTile(
+            leading: Image.network(
+              item.food.image,
+              width: 50,
+              height: 50,
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(Icons.image_not_supported, size: 50);
+              },
+            ),
+            title: Text(item.food.name),
+            subtitle: Text("Giá: \$${item.food.price} x ${item.quantity}"),
+            trailing: Text("Tổng: \$${(item.food.price * item.quantity).toStringAsFixed(2)}"),
+          );
+        },
+      ),
     );
   }
 }

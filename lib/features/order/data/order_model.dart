@@ -1,5 +1,6 @@
 // order_model.dart
 import '../../menu/data/food_model.dart';
+import '../../menu/data/menu_repository.dart';
 
 class OrderItem {
   final Food food;
@@ -30,22 +31,32 @@ class Order {
     this.paymentDate,
   });
 
-  factory Order.fromJson(Map<String, dynamic> json) {
+  static Future<Order> fromJson(Map<String, dynamic> json) async {
+    final menuRepository = MenuRepository();
+    final listItem = await Future.wait(
+      (json['listItem'] as List).map((item) async {
+        final foodId = item['itemId'];
+        Food? food;
+        try {
+          food = await menuRepository.getFoodById(foodId);
+          if (food == null) {
+            throw Exception('Food with id $foodId not found');
+          }
+        } catch (e) {
+          print('Error fetching food with id $foodId: $e');
+          throw e; // Re-throw the exception
+        }
+        return OrderItem(
+          food: food,
+          quantity: item['quantity'],
+        );
+      }),
+    );
+
     return Order(
       id: json['_id'],
       phone: json['phone'],
-      listItem: (json['listItem'] as List)
-          .map((item) => OrderItem(
-        food: Food(  // Tạo Food object từ itemId (cần thông tin food)
-          id: item['itemId'],
-          name: 'Unknown', // Thay bằng cách lấy tên món ăn nếu có
-          image: '',       // Thay bằng cách lấy ảnh món ăn nếu có
-          price: 0.0,      // Thay bằng cách lấy giá món ăn nếu có
-          category: '',    // Thay bằng cách lấy category nếu có
-        ),
-        quantity: item['quantity'],
-      ))
-          .toList(),
+      listItem: listItem,
       orderDate: DateTime.parse(json['orderDate']),
       paymentDate: json['paymentDate'] != null ? DateTime.parse(json['paymentDate']) : null,
     );

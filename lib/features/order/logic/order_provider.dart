@@ -3,18 +3,18 @@ import 'package:flutter/material.dart';
 import '../../menu/data/food_model.dart';
 import '../../order/data/order_model.dart';
 import '../../order/data/order_repository.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../account/logic/auth_provider.dart'; // Import AuthProvider
 
 class OrderProvider with ChangeNotifier {
   final List<OrderItem> _cartItems = [];
   final List<OrderItem> _orderedItems = [];
-  List<Order> _orderHistory = []; // Sử dụng List<Order>
-  String? _authToken;
-  final OrderRepository _orderRepository = OrderRepository(); // Khởi tạo repository
+  List<Order> _orderHistory = [];
+
+  final OrderRepository _orderRepository;
 
   List<OrderItem> get cartItems => _cartItems;
   List<OrderItem> get orderedItems => _orderedItems;
-  List<Order> get orderHistory => _orderHistory; // Trả về List<Order>
+  List<Order> get orderHistory => _orderHistory;
 
   double get totalCartPrice => _cartItems.fold(
       0, (total, item) => total + (item.food.price * item.quantity));
@@ -22,20 +22,7 @@ class OrderProvider with ChangeNotifier {
   double get totalOrderPrice => _orderedItems.fold(
       0, (total, item) => total + (item.food.price * item.quantity));
 
-  OrderProvider() {
-    _loadAuthToken();
-  }
-
-  Future<void> _loadAuthToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    _authToken = prefs.getString('token');
-    notifyListeners();
-  }
-
-  void updateAuthToken(String? token) {
-    _authToken = token;
-    notifyListeners();
-  }
+  OrderProvider(this._orderRepository);
 
   void addToCart(Food food, int quantity) {
     final index = _cartItems.indexWhere((item) => item.food.id == food.id);
@@ -75,10 +62,9 @@ class OrderProvider with ChangeNotifier {
   }
 
   Future<void> fetchOrderHistory() async {
-    if (_authToken == null) return;
-
     try {
       _orderHistory = await _orderRepository.fetchOrderHistory();
+      print('Fetched order history: $_orderHistory');
       _orderHistory.sort((a, b) => b.orderDate.compareTo(a.orderDate));
       notifyListeners();
     } catch (e) {
