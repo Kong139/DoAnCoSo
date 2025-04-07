@@ -2,16 +2,19 @@
 import '../../menu/data/food_model.dart';
 import '../../menu/data/menu_repository.dart';
 
+// order_model.dart
 class OrderItem {
   final Food food;
   int quantity;
+  String? notes;
 
-  OrderItem({required this.food, required this.quantity});
+  OrderItem({required this.food, required this.quantity, this.notes}); // Cập nhật constructor
 
   Map<String, dynamic> toJson() {
     return {
       'itemId': food.id,
       'quantity': quantity,
+      'notes': notes,
     };
   }
 }
@@ -36,6 +39,7 @@ class Order {
     final listItem = await Future.wait(
       (json['listItem'] as List).map((item) async {
         final foodId = item['itemId'];
+        final notes = item['notes'] as String?;
         Food? food;
         try {
           food = await menuRepository.getFoodById(foodId);
@@ -47,8 +51,9 @@ class Order {
           throw e; // Re-throw the exception
         }
         return OrderItem(
-          food: food,
-          quantity: item['quantity'],
+            food: food ?? Food(id: foodId, name: 'Unknown', image: '', price: 0.0, category: ''),
+            quantity: item['quantity'],
+            notes: notes
         );
       }),
     );

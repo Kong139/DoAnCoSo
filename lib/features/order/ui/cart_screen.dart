@@ -28,7 +28,14 @@ class CartScreen extends StatelessWidget {
                     },
                   ),
                   title: Text(item.food.name),
-                  subtitle: Text("Giá: \$${item.food.price}"),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Giá: \$${item.food.price}"),
+                      if (item.notes != null && item.notes!.isNotEmpty)
+                        Text("Ghi chú: ${item.notes!}", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                    ],
+                  ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

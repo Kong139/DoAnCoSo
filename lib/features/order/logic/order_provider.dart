@@ -24,18 +24,20 @@ class OrderProvider with ChangeNotifier {
 
   OrderProvider(this._orderRepository);
 
-  void addToCart(Food food, int quantity) {
-    final index = _cartItems.indexWhere((item) => item.food.id == food.id);
+  void addToCart(Food food, int quantity, {String? notes}) {
+    final index = _cartItems.indexWhere((item) => item.food.id == food.id && item.notes == notes); // Tìm kiếm cả theo ID món và ghi chú
     if (index >= 0) {
+      // Nếu món đã có trong giỏ với cùng ghi chú, cộng dồn số lượng
       _cartItems[index].quantity += quantity;
     } else {
-      _cartItems.add(OrderItem(food: food, quantity: quantity));
+      // Nếu món chưa có hoặc có ghi chú khác, thêm một OrderItem mới
+      _cartItems.add(OrderItem(food: food, quantity: quantity, notes: notes));
     }
     notifyListeners();
   }
 
-  void updateQuantity(int foodId, int newQuantity) {
-    final index = _cartItems.indexWhere((item) => item.food.id == foodId);
+  void updateQuantity(int foodId, int newQuantity, {String? notes}) {
+    final index = _cartItems.indexWhere((item) => item.food.id == foodId && item.notes == notes);
     if (index >= 0) {
       if (newQuantity > 0) {
         _cartItems[index].quantity = newQuantity;

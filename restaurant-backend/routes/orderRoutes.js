@@ -8,9 +8,15 @@ const router = express.Router();
 router.post("/", authenticateToken, async (req, res) => {
   try {
     const { listItem } = req.body;
-    const phone = req.user.phone; // Lấy số điện thoại từ thông tin người dùng đã xác thực
-
-    const newOrder = new Order({ phone, listItem });
+    const phone = req.user.phone;
+    const newOrder = new Order({
+      phone,
+      listItem: listItem.map(item => ({
+        itemId: item.itemId,
+        quantity: item.quantity,
+        notes: item.notes, // Lấy notes từ request body
+      })),
+    });
     await newOrder.save();
 
     res.status(201).json(newOrder);

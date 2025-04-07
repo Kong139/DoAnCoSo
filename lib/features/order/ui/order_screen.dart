@@ -58,7 +58,14 @@ class _OrderScreenState extends State<OrderScreen> {
             },
           ),
           title: Text(item.food.name),
-          subtitle: Text("Giá: \$${item.food.price}"),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Giá: \$${item.food.price}"),
+              if (item.notes != null && item.notes!.isNotEmpty)
+                Text("Ghi chú: ${item.notes!}", style: TextStyle(fontSize: 12, color: Colors.grey)),
+            ],
+          ),
           trailing: Text('Số lượng: ${item.quantity}'),
         );
       },
@@ -105,8 +112,8 @@ class OrderDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text("Chi tiết đơn hàng #${order.id.substring(0, 8)}"),
       ),
-      body: order.listItem.isEmpty // Check if listItem is empty
-          ? Center(child: Text("Lỗi: Không thể tải thông tin món ăn")) // Display error message
+      body: order.listItem.isEmpty
+          ? Center(child: Text("Lỗi: Không thể tải thông tin món ăn"))
           : ListView.builder(
         itemCount: order.listItem.length,
         itemBuilder: (context, index) {
@@ -121,7 +128,14 @@ class OrderDetailScreen extends StatelessWidget {
               },
             ),
             title: Text(item.food.name),
-            subtitle: Text("Giá: \$${item.food.price} x ${item.quantity}"),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Giá: \$${item.food.price} x ${item.quantity}"),
+                if (item.notes != null && item.notes!.isNotEmpty)
+                  Text("Ghi chú: ${item.notes!}", style: TextStyle(fontSize: 12, color: Colors.grey)),
+              ],
+            ),
             trailing: Text("Tổng: \$${(item.food.price * item.quantity).toStringAsFixed(2)}"),
           );
         },

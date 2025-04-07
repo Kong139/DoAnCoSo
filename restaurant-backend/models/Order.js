@@ -6,6 +6,7 @@ const OrderSchema = new mongoose.Schema({
     {
       itemId: { type: Number, required: true }, // ID món ăn
       quantity: { type: Number, required: true, default: 1 }, // Số lượng
+      notes: { type: String },
     },
   ],
   orderDate: { type: Date, default: Date.now }, // Ngày tạo đơn hàng
