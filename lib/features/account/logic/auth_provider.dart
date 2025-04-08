@@ -13,9 +13,9 @@ class AuthProvider with ChangeNotifier {
   String? get phoneNumber => _phoneNumber;
   String? get username => _username;
 
-  Future<void> register(String phone, String password) async {
+  Future<void> register(String name, String phone, String password) async {
     try {
-      await _authRepository.register(phone, password);
+      await _authRepository.register(name, phone, password);
       await login(phone, password);
     } catch (e) {
       throw Exception(e.toString());
@@ -69,5 +69,16 @@ class AuthProvider with ChangeNotifier {
       _phoneNumber = userInfo['phone'] ?? _phoneNumber;
     }
     return userInfo;
+  }
+
+  // Hàm đổi mật khẩu
+  Future<void> changePassword(String currentPassword, String newPassword) async {
+    try {
+      await _authRepository.changePassword(currentPassword, newPassword);
+      print('Đổi mật khẩu thành công');
+    } catch (e) {
+      print('Đổi mật khẩu thất bại: $e');
+      throw Exception(e.toString());
+    }
   }
 }

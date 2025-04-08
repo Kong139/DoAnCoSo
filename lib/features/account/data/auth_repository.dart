@@ -5,20 +5,28 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthRepository {
   final String baseUrl = 'http://restaurant-api.eba-wzh62pas.us-east-1.elasticbeanstalk.com/api/auth';
 
-  // Hàm đăng ký người dùng
-  Future<void> register(String phone, String password) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/register'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'phone': phone, 'password': password}),
-    );
+// Hàm đăng ký người dùng
+  Future<void> register(String name, String phone, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'name': name, 'phone': phone, 'password': password}),
+      );
 
-    if (response.statusCode == 201) {
-      // Nếu đăng ký thành công, có thể tự động đăng nhập sau này
-      return;
-    } else {
-      final data = jsonDecode(response.body);
-      throw Exception(data['message'] ?? 'Đăng ký thất bại');
+      if (response.statusCode == 201) {
+        // Đăng ký thành công, không cần làm gì thêm ở đây vì hàm trả về void
+        return;
+      } else {
+        // Đăng ký thất bại
+        final data = jsonDecode(response.body);
+        final errorMessage = data['message'] ?? 'Đăng ký thất bại'; // Lấy thông báo lỗi từ server
+        throw Exception(errorMessage); // Ném ra ngoại lệ để thông báo lỗi cho lớp trên
+      }
+    } catch (e) {
+      // Bắt lỗi nếu có bất kỳ ngoại lệ nào xảy ra (ví dụ: lỗi mạng)
+      print('Lỗi đăng ký: $e'); // In lỗi ra console để debug
+      throw Exception('Đăng ký thất bại: $e'); // Ném lại ngoại lệ để thông báo lỗi cho lớp trên
     }
   }
 
@@ -32,7 +40,6 @@ class AuthRepository {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      // Lưu token vào SharedPreferences
       await saveToken(data['token']);
       return data;
     } else {
@@ -40,6 +47,34 @@ class AuthRepository {
       throw Exception(data['message'] ?? 'Đăng nhập thất bại');
     }
   }
+
+  // Đổi mật khẩu
+  Future<void> changePassword(String currentPassword, String newPassword) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) throw Exception('Chưa đăng nhập');
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/change-password'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'oldPassword': currentPassword, // <- Sửa ở đây
+        'newPassword': newPassword,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('Đổi mật khẩu thành công');
+    } else {
+      final data = jsonDecode(response.body);
+      throw Exception(data['message'] ?? 'Đổi mật khẩu thất bại');
+    }
+  }
+
 
   // Hàm đăng xuất: xóa token khỏi SharedPreferences
   Future<void> logout() async {
@@ -60,8 +95,7 @@ class AuthRepository {
 
   Future<String?> loadToken() async {
     final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    return token;
+    return prefs.getString('token');
   }
 
   Future<bool> isTokenValid() async {
@@ -85,7 +119,6 @@ class AuthRepository {
         print('Token is valid');
         return true;
       } else {
-        // Nếu token không hợp lệ, xóa nó khỏi SharedPreferences
         await prefs.remove('token');
         print('Token invalid, removed from SharedPreferences');
         return false;
@@ -100,26 +133,18 @@ class AuthRepository {
   Future<Map<String, dynamic>?> getUserInfo() async {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    if (token == null) {
-      return null;
-    }
+    if (token == null) return null;
+
     try {
-      // Token dạng JWT có cấu trúc: header.payload.signature
       final parts = token.split('.');
-      if (parts.length != 3) {
-        return null;
-      }
+      if (parts.length != 3) return null;
+
       final payload = parts[1];
-      // Chuẩn hóa chuỗi base64 nếu thiếu padding
-      String normalized = base64.normalize(payload);
-      // Giải mã payload
+      final normalized = base64.normalize(payload);
       final payloadDecoded = utf8.decode(base64Url.decode(normalized));
-      final payloadJson = jsonDecode(payloadDecoded);
-      return payloadJson;
+      return jsonDecode(payloadDecoded);
     } catch (e) {
       return null;
     }
   }
-
-
 }

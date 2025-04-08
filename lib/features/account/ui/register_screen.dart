@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../logic/auth_provider.dart';
+import '../../../main_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -9,6 +10,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -22,6 +24,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
           key: _formKey,
           child: Column(
             children: [
+              TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(labelText: 'Tên'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Tên là bắt buộc';
+                  }
+                  return null;
+                },
+              ),
               TextFormField(
                 controller: _phoneController,
                 decoration: InputDecoration(labelText: 'Số điện thoại'),
@@ -48,8 +60,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    await Provider.of<AuthProvider>(context, listen: false)
-                        .register(_phoneController.text, _passwordController.text);
+                    try {
+                      await Provider.of<AuthProvider>(context, listen: false)
+                          .register(_nameController.text, _phoneController.text, _passwordController.text);
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('Đăng ký thành công!'),
+                      ));
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => MainScreen()),  // Chuyển hướng đến MainScreen
+                            (Route<dynamic> route) => false,  // Loại bỏ tất cả các route trước đó
+                      );
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text('Đăng ký thất bại: ${e.toString()}'),
+                      ));
+                    }
                   }
                 },
                 child: Text('Đăng ký'),

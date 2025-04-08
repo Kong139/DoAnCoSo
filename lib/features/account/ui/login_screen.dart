@@ -20,9 +20,10 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         await Provider.of<AuthProvider>(context, listen: false)
             .login(_phoneController.text, _passwordController.text);
-        Navigator.pushReplacement(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => MainScreen()),
+              (Route<dynamic> route) => false,
         );
       } catch (e) {
         setState(() {

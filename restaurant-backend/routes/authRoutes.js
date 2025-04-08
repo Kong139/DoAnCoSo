@@ -10,6 +10,7 @@ const router = express.Router();
 router.post("/register", async (req, res) => {
   try {
     const { name, phone, password } = req.body;
+    if (!name) return res.status(400).json({ message: "Tên người dùng không được để trống!" });
     if (!phone) return res.status(400).json({ message: "Số điện thoại không được để trống!" });
     if (!password) return res.status(400).json({ message: "Mật khẩu không được để trống!" });
 
@@ -26,6 +27,7 @@ router.post("/register", async (req, res) => {
 
     res.status(201).json({ message: "Đăng ký thành công!" });
   } catch (error) {
+    console.error("Lỗi đăng ký:", error); // Thêm log lỗi chi tiết
     res.status(500).json({ message: "Lỗi server" });
   }
 });
@@ -70,6 +72,35 @@ router.get("/me", authenticateToken, (req, res) => {
     name: req.user.name,
     phone: req.user.phone,
   });
+});
+
+// Đổi mật khẩu
+router.post("/change-password", authenticateToken, async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ message: "Vui lòng nhập đầy đủ mật khẩu cũ và mới!" });
+    }
+
+    // Tìm người dùng từ ID có trong token
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "Người dùng không tồn tại!" });
+
+    // So sánh mật khẩu cũ
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) return res.status(400).json({ message: "Mật khẩu cũ không đúng!" });
+
+    // Mã hóa và cập nhật mật khẩu mới
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedNewPassword;
+    await user.save();
+
+    res.json({ message: "Đổi mật khẩu thành công!" });
+  } catch (error) {
+    console.error("Lỗi đổi mật khẩu:", error);
+    res.status(500).json({ message: "Lỗi server" });
+  }
 });
 
 module.exports = router;
