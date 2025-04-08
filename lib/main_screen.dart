@@ -4,16 +4,9 @@ import 'features/menu/ui/menu_screen.dart';
 import 'features/order/ui/cart_screen.dart';
 import 'features/order/ui/order_screen.dart';
 import 'features/account/ui/account_screen.dart';
-import 'features/account/logic/auth_provider.dart';
+import 'navigation_provider.dart';
 
-class MainScreen extends StatefulWidget {
-  @override
-  _MainScreenState createState() => _MainScreenState();
-}
-
-class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
-
+class MainScreen extends StatelessWidget {
   final List<Widget> _screens = [
     MenuScreen(),
     CartScreen(),
@@ -21,19 +14,16 @@ class _MainScreenState extends State<MainScreen> {
     AccountScreen(),
   ];
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    final navigationProvider = Provider.of<NavigationProvider>(context);
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: _screens[navigationProvider.selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+        currentIndex: navigationProvider.selectedIndex,
+        onTap: (index) {
+          navigationProvider.setSelectedIndex(index);
+        },
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
         items: [

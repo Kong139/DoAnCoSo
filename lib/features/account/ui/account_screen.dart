@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../account/logic/auth_provider.dart';
 import '../ui/login_screen.dart';
+import '../logic/change_password_provider.dart';
 
 class AccountScreen extends StatefulWidget {
   @override
@@ -56,7 +57,6 @@ class _AccountScreenState extends State<AccountScreen> {
                 const SizedBox(height: 20),
                 _infoTile("📱  Số điện thoại", phoneNumber),
                 const SizedBox(height: 40),
-
                 ElevatedButton.icon(
                   onPressed: () => _showChangePasswordDialog(context),
                   icon: const Icon(Icons.lock),
@@ -71,9 +71,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
                 ElevatedButton.icon(
                   onPressed: () {
                     Provider.of<AuthProvider>(context, listen: false).logout();
@@ -162,76 +160,76 @@ class _AccountScreenState extends State<AccountScreen> {
   void _showChangePasswordDialog(BuildContext context) {
     final currentPasswordController = TextEditingController();
     final newPasswordController = TextEditingController();
-    String? errorMessage;
+    final changePasswordProvider = ChangePasswordProvider(); // Tạo instance của Provider
 
     showDialog(
       context: context,
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) =>
-              AlertDialog(
-                title: const Text("Đổi mật khẩu"),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: currentPasswordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                          labelText: "Mật khẩu hiện tại"),
-                    ),
-                    TextField(
-                      controller: newPasswordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                          labelText: "Mật khẩu mới"),
-                    ),
-                    if (errorMessage != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          errorMessage!,
-                          style: const TextStyle(color: Colors.red),
-                        ),
+        return ChangeNotifierProvider.value(
+          value: changePasswordProvider,
+          child: Consumer<ChangePasswordProvider>(
+            builder: (context, provider, _) => AlertDialog(
+              title: const Text("Đổi mật khẩu"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: currentPasswordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                        labelText: "Mật khẩu hiện tại"),
+                  ),
+                  TextField(
+                    controller: newPasswordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                        labelText: "Mật khẩu mới"),
+                  ),
+                  if (provider.errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        provider.errorMessage!,
+                        style: const TextStyle(color: Colors.red),
                       ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text("Hủy"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      try {
-                        await Provider.of<AuthProvider>(context, listen: false)
-                            .changePassword(
-                          currentPasswordController.text,
-                          newPasswordController.text,
-                        );
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text("Đổi mật khẩu thành công")),
-                        );
-                      } catch (e) {
-                        if (e.toString().contains("Mật khẩu cũ không đúng")) {
-                          setState(() {
-                            errorMessage = "Nhập sai mật khẩu cũ";
-                          });
-                        } else {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(
-                                "Đổi mật khẩu thất bại: $e")),
-                          );
-                        }
-                      }
-                    },
-                    child: const Text("Xác nhận"),
-                  ),
+                    ),
                 ],
               ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Hủy"),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      await Provider.of<AuthProvider>(context, listen: false)
+                          .changePassword(
+                        currentPasswordController.text,
+                        newPasswordController.text,
+                      );
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text("Đổi mật khẩu thành công")),
+                      );
+                    } catch (e) {
+                      if (e.toString().contains("Mật khẩu cũ không đúng")) {
+                        provider.setErrorMessage("Nhập sai mật khẩu cũ"); // Cập nhật errorMessage thông qua provider
+                      } else {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(
+                              "Đổi mật khẩu thất bại: $e")),
+                        );
+                      }
+                    }
+                  },
+                  child: const Text("Xác nhận"),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );

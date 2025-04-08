@@ -2,39 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../menu/data/food_model.dart';
 import '../../order/logic/order_provider.dart';
+import '../logic/quantity_provider.dart';
 
-class QuantitySelector extends StatefulWidget {
+class QuantitySelector extends StatelessWidget {
   final Food food;
 
   QuantitySelector({required this.food});
 
   @override
-  _QuantitySelectorState createState() => _QuantitySelectorState();
-}
-
-class _QuantitySelectorState extends State<QuantitySelector> {
-  int _quantity = 1;
-  String? _notes; // Thêm biến lưu trữ ghi chú
-  final _notesController = TextEditingController(); // Controller cho TextField
-
-  @override
-  void dispose() {
-    _notesController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    double totalPrice = widget.food.price * _quantity;
+    final quantityProvider = Provider.of<QuantityProvider>(context);
+    double totalPrice = food.price * quantityProvider.quantity;
 
     return AlertDialog(
-      title: Text(widget.food.name),
-      content: SingleChildScrollView( // Sử dụng SingleChildScrollView để tránh tràn màn hình
+      title: Text(food.name),
+      content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.network(
-              widget.food.image,
+              food.image,
               width: 100,
               height: 100,
               errorBuilder: (context, error, stackTrace) {
@@ -47,32 +34,24 @@ class _QuantitySelectorState extends State<QuantitySelector> {
               children: [
                 IconButton(
                   icon: Icon(Icons.remove),
-                  onPressed: () {
-                    setState(() {
-                      if (_quantity > 1) _quantity--;
-                    });
-                  },
+                  onPressed: quantityProvider.decrementQuantity,
                 ),
-                Text('$_quantity', style: TextStyle(fontSize: 18)),
+                Text('${quantityProvider.quantity}', style: TextStyle(fontSize: 18)),
                 IconButton(
                   icon: Icon(Icons.add),
-                  onPressed: () {
-                    setState(() {
-                      _quantity++;
-                    });
-                  },
+                  onPressed: quantityProvider.incrementQuantity,
                 ),
               ],
             ),
             SizedBox(height: 10),
-            TextField( // Thêm TextField cho ghi chú
-              controller: _notesController,
+            TextField(
+              // Không cần TextEditingController nữa
               decoration: InputDecoration(
                 hintText: 'Thêm ghi chú (tùy chọn)',
                 border: OutlineInputBorder(),
               ),
               onChanged: (value) {
-                _notes = value;
+                quantityProvider.updateNotes(value);
               },
               maxLines: 3,
             ),
@@ -90,9 +69,9 @@ class _QuantitySelectorState extends State<QuantitySelector> {
         ),
         ElevatedButton(
           onPressed: () {
-            Provider.of<OrderProvider>(context, listen: false).addToCart(widget.food, _quantity, notes: _notes); // Truyền ghi chú
+            Provider.of<OrderProvider>(context, listen: false).addToCart(food, quantityProvider.quantity, notes: quantityProvider.notes);
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${widget.food.name} x$_quantity đã được thêm vào giỏ hàng')),
+              SnackBar(content: Text('${food.name} x${quantityProvider.quantity} đã được thêm vào giỏ hàng')),
             );
             Navigator.of(context).pop();
           },

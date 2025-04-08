@@ -30,7 +30,6 @@ class AuthProvider with ChangeNotifier {
       _username = data['name'];
       await fetchUserInfo(); // Load lại thông tin user sau khi đăng nhập
       notifyListeners();
-      print('Login successful: token=$_token, phone=$_phoneNumber, name=$_username');
     } catch (e) {
       print('Login failed: $e');
       throw Exception(e.toString());

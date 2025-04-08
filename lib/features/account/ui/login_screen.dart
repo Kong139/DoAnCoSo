@@ -3,19 +3,15 @@ import 'package:provider/provider.dart';
 import '../../../main_screen.dart';
 import '../logic/auth_provider.dart';
 import 'register_screen.dart';
+import '../logic/login_provider.dart';
 
-class LoginScreen extends StatefulWidget {
-  @override
-  _LoginScreenState createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
+class LoginScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  String? _errorMessage;
 
-  void _login() async {
+  void _login(BuildContext context) async {
+    final loginProvider = Provider.of<LoginProvider>(context, listen: false);
     if (_formKey.currentState!.validate()) {
       try {
         await Provider.of<AuthProvider>(context, listen: false)
@@ -26,9 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
               (Route<dynamic> route) => false,
         );
       } catch (e) {
-        setState(() {
-          _errorMessage = e.toString();
-        });
+        loginProvider.setErrorMessage(e.toString());
       }
     }
   }
@@ -67,17 +61,22 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _login,
+                onPressed: () => _login(context),
                 child: Text('Đăng nhập'),
               ),
-              if (_errorMessage != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: Text(
-                    _errorMessage!,
-                    style: TextStyle(color: Colors.red),
-                  ),
-                ),
+              Consumer<LoginProvider>( // Sử dụng Consumer để lắng nghe errorMessage
+                builder: (context, loginProvider, _) {
+                  return loginProvider.errorMessage != null
+                      ? Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Text(
+                      loginProvider.errorMessage!,
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  )
+                      : SizedBox.shrink(); // Ẩn nếu không có lỗi
+                },
+              ),
               TextButton(
                 onPressed: () {
                   Navigator.push(

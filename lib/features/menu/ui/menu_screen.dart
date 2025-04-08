@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../logic/menu_provider.dart';
 import '../../order/logic/order_provider.dart';
 import '../data/food_model.dart';
+import '../logic/quantity_provider.dart';
 import 'quantity_selector.dart';
 
 class MenuScreen extends StatelessWidget {
@@ -77,7 +78,10 @@ class MenuScreen extends StatelessWidget {
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return QuantitySelector(food: food);
+                          return ChangeNotifierProvider(
+                            create: (_) => QuantityProvider(),
+                            child: QuantitySelector(food: food),
+                          );
                         },
                       );
                     },

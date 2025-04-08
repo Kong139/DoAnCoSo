@@ -13,6 +13,7 @@ dependencies:
   http: ^1.3.0
   provider: ^6.1.2
   shared_preferences: ^2.2.2
+  flutter_launcher_icons: ^0.14.3
 
 dev_dependencies:
   flutter_test:
@@ -22,4 +23,23 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/logo.png
 
+flutter_launcher_icons:
+  android: "launcher_icon" # Tên file biểu tượng cho Android (trong thư mục android/app/src/main/res/mipmap-*)
+  ios: true # Bật tạo biểu tượng cho iOS
+  image_path: "assets/images/logo.png" # Đường dẫn đến file hình ảnh biểu tượng (ít nhất 512x512px)
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/images/logo.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "assets/images/logo.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/images/logo.png"

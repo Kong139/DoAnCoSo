@@ -1,16 +1,20 @@
 const mongoose = require("mongoose");
+const moment = require("moment-timezone");
 
 const OrderSchema = new mongoose.Schema({
-  phone: { type: String, required: true }, // Số điện thoại người dùng
+  phone: { type: String, required: true },
   listItem: [
     {
-      itemId: { type: Number, required: true }, // ID món ăn
-      quantity: { type: Number, required: true, default: 1 }, // Số lượng
+      itemId: { type: Number, required: true },
+      quantity: { type: Number, required: true, default: 1 },
       notes: { type: String },
     },
   ],
-  orderDate: { type: Date, default: Date.now }, // Ngày tạo đơn hàng
-  paymentDate: { type: Date }, // Ngày thanh toán (nếu có)
+  orderDate: {
+    type: Date,
+    default: () => moment().tz("Asia/Ho_Chi_Minh").toDate(),
+  },
+  paymentDate: { type: Date },
 });
 
 module.exports = mongoose.model("Order", OrderSchema);
