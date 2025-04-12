@@ -6,7 +6,7 @@ import '../../account/logic/auth_provider.dart'; // Import AuthProvider
 
 class OrderRepository {
   final String baseUrl =
-      'http://restaurant-api.eba-wzh62pas.us-east-1.elasticbeanstalk.com/api';
+      'http://app-api-env.eba-u24nfued.us-east-1.elasticbeanstalk.com/api';
   final AuthProvider authProvider; // Thêm AuthProvider
 
   OrderRepository(this.authProvider); // Constructor nhận AuthProvider

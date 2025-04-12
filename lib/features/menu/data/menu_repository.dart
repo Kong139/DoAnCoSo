@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'food_model.dart';
 
 class MenuRepository {
-  final String apiUrl = "http://restaurant-api.eba-wzh62pas.us-east-1.elasticbeanstalk.com/api/menu";
+  final String apiUrl = "http://app-api-env.eba-u24nfued.us-east-1.elasticbeanstalk.com/api/menu";
 
   Future<List<Food>> fetchMenu() async {
     try {

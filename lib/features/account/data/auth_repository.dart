@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthRepository {
-  final String baseUrl = 'http://restaurant-api.eba-wzh62pas.us-east-1.elasticbeanstalk.com/api/auth';
+  final String baseUrl = 'http://app-api-env.eba-u24nfued.us-east-1.elasticbeanstalk.com/api/auth';
 
 // Hàm đăng ký người dùng
   Future<void> register(String name, String phone, String password) async {
